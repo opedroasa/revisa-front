@@ -1,0 +1,101 @@
+import { useEffect, useState } from "react";
+import { MarcasService } from "../../services/marcasService";
+import { ModelosService } from "../../services/modelosService";
+
+export default function FiltersSidebar({ value, onChange }) {
+  const [marcas, setMarcas] = useState([]);
+  const [modelos, setModelos] = useState([]);
+
+  const { marcaId, modeloId, ano, q, order } = value;
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await MarcasService.listar();
+      setMarcas(data);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!marcaId) { setModelos([]); return; }
+      const { data } = await ModelosService.listarPorMarca(marcaId);
+      setModelos(data);
+    })();
+  }, [marcaId]);
+
+  const handle = (patch) => onChange({ ...value, ...patch });
+
+  return (
+    <aside className="w-full sm:w-64 shrink-0">
+      <div className="sticky top-4 space-y-4">
+        <div>
+          <label className="text-sm font-medium">Busca</label>
+          <input
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="Peça ou código..."
+            value={q || ""}
+            onChange={(e) => handle({ q: e.target.value })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Marca</label>
+          <select
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            value={marcaId || ""}
+            onChange={(e) => handle({ marcaId: e.target.value || null, modeloId: null })}
+          >
+            <option value="">Todas</option>
+            {marcas.map(m => <option key={m.id} value={m.id}>{m.nome}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Modelo</label>
+          <select
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            value={modeloId || ""}
+            onChange={(e) => handle({ modeloId: e.target.value || null })}
+            disabled={!marcaId}
+          >
+            <option value="">Todos</option>
+            {modelos.map(md => <option key={md.id} value={md.id}>{md.nome}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Ano</label>
+          <input
+            type="number"
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="ex: 2016"
+            value={ano || ""}
+            onChange={(e) => handle({ ano: e.target.value || null })}
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Ordenar por</label>
+          <select
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            value={order || "relevancia"}
+            onChange={(e) => handle({ order: e.target.value })}
+          >
+            <option value="relevancia">Relevância</option>
+            <option value="preco_asc">Preço: menor → maior</option>
+            <option value="preco_desc">Preço: maior → menor</option>
+            <option value="nome_asc">Nome A→Z</option>
+            <option value="nome_desc">Nome Z→A</option>
+          </select>
+        </div>
+
+        <button
+          className="w-full rounded-md bg-gray-900 text-white py-2 text-sm"
+          onClick={() => handle({ q: "", marcaId: null, modeloId: null, ano: null, order: "relevancia" })}
+        >
+          Limpar filtros
+        </button>
+      </div>
+    </aside>
+  );
+}
