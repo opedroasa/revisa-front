@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import ProductsList from "../pages/Store/ProductsList";
 import ProductDetails from "../pages/Store/ProductDetails";
 import MarcasList from "../pages/Marcas/MarcasList";
+import ModelosList from "../pages/Modelos/ModelosList";
 
 import { useState } from "react";
 import LoginDialog from "../components/LoginDialog";
@@ -34,6 +35,7 @@ export default function AppRoutes() {
         <>
           {/* Admin links (sem “(admin)”) */}
           <Link to="/admin/produtos" className="hover:opacity-80">Produtos</Link>
+          <Link to="/admin/modelos" className="hover:opacity-80">Modelos</Link>
           <Link to="/admin/marcas" className="hover:opacity-80">Marcas</Link>
           <button onClick={logout}
             className="rounded-md border border-brandNavy/30 px-3 py-1.5 text-sm hover:bg-brandNavy hover:text-white">
@@ -58,6 +60,7 @@ export default function AppRoutes() {
 
           {/* Admin */}
           <Route path="/admin/marcas" element={<Guard><MarcasList /></Guard>} />
+          <Route path="/admin/modelos" element={<Guard><ModelosList/></Guard>} />
 
           <Route path="/admin/produtos" element={<Guard><ProdutosAdminList /></Guard>} />
           <Route path="/admin/produtos/novo" element={<Guard><ProdutoAdminForm mode="create" /></Guard>} />

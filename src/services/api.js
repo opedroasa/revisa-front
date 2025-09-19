@@ -34,14 +34,12 @@ api.interceptors.response.use(
   }
 );
 
-// Força GETs sem cache (evita 304/stale)
 api.interceptors.request.use((cfg) => {
   if ((cfg.method || "get").toLowerCase() === "get") {
     cfg.headers = cfg.headers || {};
     cfg.headers["Cache-Control"] = "no-cache";
     cfg.headers["Pragma"] = "no-cache";
     cfg.headers["If-Modified-Since"] = "0";
-    // truque extra (cache-busting):
     const u = new URL(cfg.url, window.location.origin);
     u.searchParams.set("_t", Date.now().toString());
     cfg.url = u.pathname + u.search;

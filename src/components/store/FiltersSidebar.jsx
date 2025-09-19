@@ -10,18 +10,28 @@ export default function FiltersSidebar({ value, onChange }) {
 
   useEffect(() => {
     (async () => {
-      const { data } = await MarcasService.listar();
-      setMarcas(data);
+      const { data } = await MarcasService.listarAtivas();
+      const ordenadas = (data || []).slice().sort(
+      (a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+      setMarcas(ordenadas);
     })();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      if (!marcaId) { setModelos([]); return; }
-      const { data } = await ModelosService.listarPorMarca(marcaId);
-      setModelos(data);
-    })();
-  }, [marcaId]);
+useEffect(() => {
+  (async () => {
+    if (!marcaId) { setModelos([]); return; }
+    try {
+    const { data } = await ModelosService.listarPorMarca(marcaId);
+    const ativosOrdenados = (data || [])
+      .filter(m => m.ativo)
+      .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+    setModelos(ativosOrdenados);
+    } catch (e) {
+      console.error("Falha ao carregar modelos da marca:", e?.response?.data || e?.message);
+      setModelos([]);
+    }
+  })();
+}, [marcaId]);
 
   const handle = (patch) => onChange({ ...value, ...patch });
 
