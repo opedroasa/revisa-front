@@ -28,7 +28,7 @@ export default function AppRoutes() {
   <div className="mx-auto max-w-7xl flex items-center gap-4">
     <img src="/brand-logo.png" alt="Revisa Caminhões" className="h-8" />
     {/* Público: só vitrine */}
-    <Link to="/" className="hover:opacity-80">Peças</Link>
+    <Link to="/" className="hover:opacity-80">Home</Link>
 
     <div className="ml-auto flex items-center gap-3">
       {isAuth ? (

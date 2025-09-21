@@ -1,14 +1,40 @@
 import { api } from "./api";
+
 const base = "/api/produtos";
 
 export const ProdutosService = {
-  listar: () => api.get(base),                          // GET /api/produtos
-  listarAtivos: () => api.get(`${base}/ativos`),        // GET /api/produtos/ativos
-  buscar: (id) => api.get(`${base}/${id}`),             // GET /api/produtos/{id}
-  criar: (payload) => api.post(base, payload),          // POST /api/produtos
-  atualizar: (id, payload) => api.put(`${base}/${id}`, payload), // PUT /api/produtos/{id}
-  inativar: (id) => api.put(`${base}/inativar/${id}`),  // PUT /api/produtos/inativar/{id}
-  ativar: (id) => api.put(`${base}/ativar/${id}`),      // PUT /api/produtos/ativar/{id}
-  excluir: (id) => api.delete(`${base}/${id}`),         // DELETE /api/produtos/{id}
-  filtrar: (params) => api.get(`${base}/filtro`, { params }), // GET /api/produtos/filtro?...
+  // Vitrine/admin – paginação SEM filtros
+  page: ({ page = 0, size = 20, sort = "id,asc", somenteAtivos = true } = {}) =>
+    api.get(`${base}/page`, { params: { page, size, sort, somenteAtivos } }),
+
+  // Vitrine/admin – paginação COM filtros (agora com q)
+  pageFiltrado: ({
+    marcaId = null,
+    modeloId = null,
+    ano = null,
+    q = null,
+    page = 0,
+    size = 20,
+    sort = "id,asc",
+    somenteAtivos = true,
+  } = {}) =>
+    api.get(`${base}/page/filtro`, {
+      params: { marcaId, modeloId, ano, q, page, size, sort, somenteAtivos },
+    }),
+
+  // CRUD
+  buscar: (id) => api.get(`${base}/${id}`),
+  criar: (payload) => api.post(base, payload),
+  atualizar: (id, payload) => api.put(`${base}/${id}`, payload),
+  ativar: (id) => api.put(`${base}/ativar/${id}`),
+  inativar: (id) => api.put(`${base}/inativar/${id}`),
+  excluir: (id) => api.delete(`${base}/${id}`),
+
+  // Estoque (C)
+  definirEstoque: (id, quantidade) =>
+    api.put(`${base}/${id}/estoque/definir`, { quantidade }),
+  entradaEstoque: (id, quantidade) =>
+    api.put(`${base}/${id}/estoque/entrada`, { quantidade }),
+  saidaEstoque: (id, quantidade) =>
+    api.put(`${base}/${id}/estoque/saida`, { quantidade }),
 };
