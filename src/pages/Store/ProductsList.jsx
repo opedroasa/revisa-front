@@ -1,127 +1,153 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ProdutosService } from "../../services/produtosService";
 import FiltersSidebar from "../../components/store/FiltersSidebar";
-import ProductCard from "../../components/store/ProductCard";
+import { Link } from "react-router-dom";
+
+const PAGE_SIZE = 20;
+
+function mapSort(order) {
+  switch (order) {
+    case "preco_asc":  return "preco,asc";
+    case "preco_desc": return "preco,desc";
+    case "nome_desc":  return "nome,desc";
+    case "nome_asc":   return "nome,asc";
+    default:           return "nome,asc"; // fallback
+  }
+}
 
 export default function ProductsList() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // filtros aplicados
   const [filters, setFilters] = useState({
-    q: "", marcaId: null, modeloId: null, ano: null, order: "relevancia",
+    marcaId: null,
+    modeloId: null,
+    ano: null,
+    q: "",
+    order: "nome_asc",
   });
-  const [openMobileFilters, setOpenMobileFilters] = useState(false);
 
-  function applyClientSort(data, order) {
-    const list = [...(data || [])];
-    switch (order) {
-      case "preco_asc":  return list.sort((a,b)=>(a.preco??0)-(b.preco??0));
-      case "preco_desc": return list.sort((a,b)=>(b.preco??0)-(a.preco??0));
-      case "nome_asc":   return list.sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","pt-BR"));
-      case "nome_desc":  return list.sort((a,b)=>(b.nome||"").localeCompare(a.nome||"","pt-BR"));
-      case "relevancia":
-      default:
-        // Relevância simples (front): destaque desc, estoque desc, nome asc
-        return list.sort((a,b)=>{
-          const ad = a?.fotos?.some(f=>f.destaque) ? 1 : 0;
-          const bd = b?.fotos?.some(f=>f.destaque) ? 1 : 0;
-          if (bd-ad) return bd-ad;
-          const ae = a?.estoque ?? 0, be = b?.estoque ?? 0;
-          if (be-ae) return be-ae;
-          return (a.nome||"").localeCompare(b.nome||"","pt-BR");
-        });
-    }
-  }
+  // filtros editáveis antes de aplicar
+  const [pending, setPending] = useState(filters);
 
-function matchAno(compatList, ano) {
-  if (!ano) return true;
-  const Y = Number(ano);
-  return (compatList || []).some(c => {
-    const ini = Number(c.anoInicial);
-    const fim = Number(c.anoFinal || c.anoInicial);
-    return Y >= ini && Y <= fim;
-  });
-}
-function matchModelo(compatList, modeloId) {
-  if (!modeloId) return true;
-  return (compatList || []).some(c => String(c.modeloId) === String(modeloId));
-}
+  const [page, setPage] = useState(0);
+  const [data, setData] = useState({ content: [], totalPages: 0, number: 0 });
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
 
-function applyClientFilters(data) {
-  const { q, marcaId, modeloId, ano } = filters;
-  return (data || []).filter(p => {
-    const okQ = !q || (p.nome || "").toLowerCase().includes(q.toLowerCase());
-    const okModelo = matchModelo(p.compatibilidades, modeloId);
-    // se tiver só marca (sem modelo): por enquanto não filtramos no front (depende da API nos dizer os modelos da marca)
-    const okMarca = !marcaId ? true : true;
-    const okAno = matchAno(p.compatibilidades, ano);
-    return okQ && okModelo && okMarca && okAno;
-  });
-}
-
-  async function carregar() {
+  const fetchData = useCallback(async () => {
     setLoading(true);
+    setErro("");
     try {
-      const { q, marcaId, modeloId, ano, order } = filters;
-      const hasServerFilter = marcaId || modeloId || ano || order !== "relevancia" || q; // tenta servidor para todos
-      let data;
+      const params = {
+        marcaId: filters.marcaId || null,
+        modeloId: filters.modeloId || null,
+        ano: filters.ano || null,
+        q: (filters.q && filters.q.trim()) ? filters.q.trim() : null,
+        page,
+        size: PAGE_SIZE,
+        sort: mapSort(filters.order),
+        somenteAtivos: true,
+      };
 
-      try {
-        if (hasServerFilter) {
-          const res = await ProdutosService.filtrar({ q, marcaId, modeloId, ano, order });
-          data = res.data?.content ?? res.data;
-        } else {
-          const res = await ProdutosService.listar();
-          data = res.data?.content ?? res.data;
-        }
-      } catch {
-        const res = await ProdutosService.listar();
-        data = res.data?.content ?? res.data;
-      }
-
-      // SEMPRE aplicamos filtro por nome no client (garante busca funcionando)
-      data = applyClientFilters(data);
-      data = applyClientSort(data, order);
-      setItems(data);
+      const { data } = await ProdutosService.pageFiltrado(params);
+      setData({
+        content: data.content || [],
+        totalPages: data.totalPages || 0,
+        number: data.number || 0,
+      });
+    } catch (e) {
+      console.error(e);
+      setErro("Falha ao carregar produtos.");
     } finally {
       setLoading(false);
     }
+  }, [filters, page]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // aplicar filtros ao clicar no botão do FiltersSidebar
+  function aplicarFiltros() {
+    setPage(0);
+    setFilters(pending);
   }
 
-  useEffect(() => { carregar(); }, []);
-  useEffect(() => { carregar(); }, [filters]);
+  const renderCard = (p) => (
+    <div key={p.id} className="rounded-xl border border-gray-200 overflow-hidden bg-white">
+      <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+        {p.fotoDestaqueUrl ? (
+          <img src={p.fotoDestaqueUrl} alt={p.nome} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-gray-500">Imagem indisponível</span>
+        )}
+      </div>
+      <div className="p-3">
+        <h3 className="font-medium line-clamp-1">{p.nome}</h3>
+        <p className="text-sm text-gray-600 line-clamp-2">{p.descricao}</p>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="font-semibold">
+            {Number(p.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </span>
+          {/* rota de detalhes correta */}
+          <Link to={`/peca/${p.id}`} className="text-sm text-[#0D3A53] hover:underline">Detalhes</Link>
+        </div>
+      </div>
+    </div>
+  );
 
-  return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-3 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Peças</h1>
-        <button className="sm:hidden rounded-md border px-3 py-2 text-sm"
-                onClick={()=>setOpenMobileFilters(v=>!v)}>
-          {openMobileFilters ? "Fechar filtros" : "Filtrar"}
+  function Pager() {
+    if (data.totalPages <= 1) return null;
+    return (
+      <div className="mt-6 flex items-center justify-center gap-2">
+        <button
+          disabled={page <= 0}
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          className="px-3 py-1 rounded border disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <span className="text-sm">Página {data.number + 1} de {data.totalPages}</span>
+        <button
+          disabled={page >= data.totalPages - 1}
+          onClick={() => setPage((p) => Math.min(data.totalPages - 1, p + 1))}
+          className="px-3 py-1 rounded border disabled:opacity-50"
+        >
+          Próxima
         </button>
       </div>
+    );
+  }
 
-      {openMobileFilters && (
-        <div className="sm:hidden mb-4 rounded-xl border p-3">
-          <FiltersSidebar value={filters} onChange={setFilters} />
+  return (
+    <div className="mx-auto max-w-7xl p-4 sm:p-6">
+      <div className="flex flex-col gap-6 sm:flex-row">
+        {/* Filtros – com os botões dentro do componente */}
+        <div className="w-full sm:w-64">
+          <FiltersSidebar
+            value={pending}
+            onChange={setPending}
+            onApply={aplicarFiltros}
+          />
         </div>
-      )}
 
-      <div className="flex gap-6">
-        <div className="hidden sm:block">
-          <FiltersSidebar value={filters} onChange={setFilters} />
+        {/* Lista */}
+        <div className="flex-1">
+          {erro && <p className="mb-3 text-red-700">{erro}</p>}
+          {loading ? (
+            <p>Carregando...</p>
+          ) : (
+            <>
+              {data.content.length === 0 ? (
+                <p className="text-gray-600">Nenhum produto encontrado.</p>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                    {data.content.map(renderCard)}
+                  </div>
+                  <Pager />
+                </>
+              )}
+            </>
+          )}
         </div>
-
-        <main className="flex-1">
-          {loading && <p>Carregando...</p>}
-          {!loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-              {items?.map(p => <ProductCard key={p.id} produto={p} />)}
-            </div>
-          )}
-          {!loading && (!items || items.length===0) && (
-            <p className="text-gray-500">Nenhuma peça encontrada.</p>
-          )}
-        </main>
       </div>
     </div>
   );

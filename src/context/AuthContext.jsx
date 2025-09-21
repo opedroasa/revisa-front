@@ -1,14 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { setBasicAuth, clearAuth, loadAuthFromStorage } from "../services/api";
+import { setBasicAuth, clearAuth } from "../services/api";
 
 const AuthCtx = createContext(null);
+
+// Hook para consumir o contexto
 export const useAuth = () => useContext(AuthCtx);
 
+// Provider
 export function AuthProvider({ children }) {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    // se já havia token salvo, considera logado
     const stored = localStorage.getItem("auth_basic");
     setIsAuth(!!stored);
   }, []);
@@ -29,3 +31,6 @@ export function AuthProvider({ children }) {
     </AuthCtx.Provider>
   );
 }
+
+// Também exporta como default para compatibilidade
+export default AuthProvider;

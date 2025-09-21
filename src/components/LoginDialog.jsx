@@ -6,12 +6,13 @@ export default function LoginDialog({ open, onClose }) {
   const [u, setU] = useState("");
   const [p, setP] = useState("");
   const [loading, setLoading] = useState(false);
+
   if (!open) return null;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    // aqui dá pra validar chamando um endpoint protegido (ex: /api/admin/ping) se você criar
+    // fluxo original: só seta Authorization, sem validar no backend
     login(u, p);
     setLoading(false);
     onClose();
@@ -25,18 +26,36 @@ export default function LoginDialog({ open, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="text-sm">Usuário</label>
-            <input className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                   value={u} onChange={(e)=>setU(e.target.value)} required/>
+            <input
+              className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+              value={u}
+              onChange={(e) => setU(e.target.value)}
+              required
+            />
           </div>
           <div>
             <label className="text-sm">Senha</label>
-            <input type="password" className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                   value={p} onChange={(e)=>setP(e.target.value)} required/>
+            <input
+              type="password"
+              className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+              value={p}
+              onChange={(e) => setP(e.target.value)}
+              required
+            />
           </div>
           <div className="flex items-center justify-end gap-2">
-            <button type="button" onClick={onClose} className="rounded-md border px-3 py-2 text-sm">Cancelar</button>
-            <button type="submit" disabled={loading}
-              className="rounded-md bg-brandNavy text-white px-3 py-2 text-sm">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border px-3 py-2 text-sm"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-md bg-brandNavy text-white px-3 py-2 text-sm"
+            >
               {loading ? "Entrando..." : "Entrar"}
             </button>
           </div>
