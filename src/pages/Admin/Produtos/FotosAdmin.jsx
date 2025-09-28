@@ -92,7 +92,7 @@ export default function FotosAdmin() {
             Upload
           </Button>
           <Button
-            className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+            className="inline-flex items-center gap-1 rounded-md border !border-[#0D3A53]/30 !bg-white px-2 py-1 text-xs font-medium !text-[#0D3A53] hover:!bg-[#0D3A53]/5"
             onClick={() => nav("/admin/produtos")}
           >
             Voltar
@@ -128,7 +128,7 @@ export default function FotosAdmin() {
             </div>
             <div className="mt-2 flex items-center justify-between gap-2">
               <Button
-                className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+                className="inline-flex items-center gap-1 rounded-md border !border-[#0D3A53]/30 !bg-white px-2 py-1 text-xs font-medium !text-[#0D3A53] hover:!bg-[#0D3A53]/5"
                 onClick={() => definirDestaque(f.id)}
               >
                 {f.destaque ? "Destaque ✓" : "Definir destaque"}

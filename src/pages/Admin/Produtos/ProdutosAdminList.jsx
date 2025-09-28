@@ -149,7 +149,7 @@ export default function ProdutosAdminList() {
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-2xl font-semibold">Produtos (admin)</h2>
+        <h2 className="text-2xl font-semibold">Produtos</h2>
         <div className="flex gap-2">
           <input
             value={q}

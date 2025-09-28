@@ -224,8 +224,12 @@ export default function ProdutoAdminForm({ mode = "create" }) {
             value={form.descricao}
             onChange={(e) => set("descricao", e.target.value)}
             rows={4}
+            maxLength={250}                           // <-- limite
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
           />
+          <div className="mt-1 text-xs text-gray-500">
+            {(form.descricao?.length || 0)}/250
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -240,7 +244,7 @@ export default function ProdutoAdminForm({ mode = "create" }) {
               onBlur={formatPrecoOnBlur}
               className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             />
-            <div className="mt-1 text-xs text-gray-500">Do banco: NUMERIC(10,2)</div>
+            <div className="mt-1 text-xs text-gray-500">Ex: R$ 3000,00</div>
           </div>
           <div>
             <label className="text-sm font-medium">Estoque *</label>
