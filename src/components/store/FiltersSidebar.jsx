@@ -48,7 +48,7 @@ export default function FiltersSidebar({ value, onChange, onApply }) {
           <label className="text-sm font-medium">Busca</label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-            placeholder="Peça ou código..."
+            placeholder="Buscar por nome..."
             value={q || ""}
             onChange={(e) => handle({ q: e.target.value })}
           />
