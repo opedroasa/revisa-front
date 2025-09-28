@@ -5,6 +5,11 @@ import MarcasList from "../pages/Marcas/MarcasList";
 import ModelosList from "../pages/Modelos/ModelosList";
 import ChangePasswordDialog from "../components/ChangePasswordDialog";
 
+import SettingsProvider from "../context/SettingsContext";
+
+import About from "../pages/Store/About";
+import SiteSettingsPage from "../pages/Admin/Config/SiteSettingsPage.jsx";
+
 import { useState } from "react";
 import LoginDialog from "../components/LoginDialog";
 import { useAuth } from "../context/AuthContext";
@@ -34,11 +39,14 @@ export default function AppRoutes() {
           {/* Links desktop */}
           <div className="hidden md:flex items-center gap-4">
             <Link to="/" className="hover:opacity-80">Home</Link>
+            <Link to="/sobre" className="hover:opacity-80">Sobre</Link>
             {isAuth && (
               <>
                 <Link to="/admin/produtos" className="hover:opacity-80">Produtos</Link>
                 <Link to="/admin/modelos" className="hover:opacity-80">Modelos</Link>
                 <Link to="/admin/marcas" className="hover:opacity-80">Marcas</Link>
+                <Link to="/admin/config" className="hover:opacity-80">Configurações</Link>
+
               </>
             )}
           </div>
@@ -88,6 +96,7 @@ export default function AppRoutes() {
         <Routes>
           {/* Público */}
           <Route path="/" element={<ProductsList />} />
+          <Route path="/sobre" element={<About />} />
           <Route path="/peca/:id" element={<ProductDetails />} />
 
           {/* Admin */}
@@ -97,6 +106,9 @@ export default function AppRoutes() {
           <Route path="/admin/produtos/novo" element={<Guard><ProdutoAdminForm mode="create" /></Guard>} />
           <Route path="/admin/produtos/:id/editar" element={<Guard><ProdutoAdminForm mode="edit" /></Guard>} />
           <Route path="/admin/produtos/:id/fotos" element={<Guard><FotosAdmin /></Guard>} />
+          <Route path="/admin/config" element={<Guard><SiteSettingsPage /></Guard>
+  }
+/>
         </Routes>
       </div>
 
@@ -133,6 +145,9 @@ function MobileMenu({ isAuth, onOpenLogin, onOpenChangePwd, onLogout }) {
           <div className="mx-auto max-w-7xl p-3 space-y-2 text-sm">
             <Link onClick={() => setOpen(false)} to="/" className="block px-2 py-2 rounded hover:bg-gray-50">
               Home
+            </Link>
+             <Link onClick={() => setOpen(false)} to="/" className="block px-2 py-2 rounded hover:bg-gray-50">
+              Sobre
             </Link>
 
             {isAuth && (

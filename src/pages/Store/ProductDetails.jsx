@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { ProdutosService } from "../../services/produtosService";
+import { useSettings } from "../../context/SettingsContext";
+
 
 function formatBRL(n) {
   return (Number(n) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -13,6 +15,17 @@ export default function ProductDetails() {
 
   // índice da foto atualmente exibida
   const [current, setCurrent] = useState(0);
+
+  const settingsCtx = useSettings();
+  const settings = settingsCtx?.settings;
+  const phone = String(
+  settings?.whatsappPhone ?? process.env.REACT_APP_WHATSAPP_PHONE ?? ""
+).replace(/\D/g, "");
+const waLink = phone
+  ? `https://wa.me/${phone}?text=${encodeURIComponent(
+      `Estou interessado na peça ${produto?.nome ?? ""}, pode me dar mais detalhes?`
+    )}`
+  : null;
 
   const carregar = useCallback(async () => {
     setLoading(true);
@@ -55,9 +68,6 @@ export default function ProductDetails() {
 
   if (loading) return <p className="p-6">Carregando...</p>;
   if (!produto) return <p className="p-6 text-red-700">Produto não encontrado.</p>;
-
-  const msg = encodeURIComponent(`Estou interessado na peça ${produto.nome}, pode me dar mais detalhes?`);
-  const whatsappHref = `https://wa.me/55${process.env.REACT_APP_WHATSAPP || "00000000000"}?text=${msg}`;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -109,14 +119,20 @@ export default function ProductDetails() {
             <span className="text-sm text-gray-600">Estoque: {produto.estoque}</span>
           </div>
 
+          {waLink ? (
           <a
-            href={whatsappHref}
+            href={waLink}
             target="_blank"
             rel="noreferrer"
             className="mt-4 inline-block rounded-md bg-[#0D3A53] px-4 py-2 text-white hover:opacity-90"
           >
             Falar no WhatsApp
           </a>
+        ) : (
+          <p className="mt-4 text-sm text-gray-500">
+            Telefone do WhatsApp não configurado.
+          </p>
+        )}
 
           {/* Compatibilidade */}
           {produto.compatibilidades?.length > 0 && (
