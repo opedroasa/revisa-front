@@ -1,13 +1,16 @@
 import axios from "axios";
 
-const isDev = process.env.NODE_ENV === "development";
+const baseURL =
+  process.env.REACT_APP_API_URL || "https://revisa-site.onrender.com"; // fallback seguro
 
 export const api = axios.create({
-  baseURL: isDev ? "" : (process.env.REACT_APP_API_BASE_URL || ""),
+  baseURL,
   timeout: 15000,
+  // withCredentials: false  // Basic Auth não precisa cookies
 });
 
-export function setBasicAuth(username, password) {
+// -- AUTH helpers (ok)
+export function setBasicAuth(username: string, password: string) {
   const token = btoa(`${username}:${password}`);
   api.defaults.headers.common["Authorization"] = `Basic ${token}`;
   localStorage.setItem("auth_basic", token);
@@ -22,6 +25,17 @@ export function clearAuth() {
 }
 loadAuthFromStorage();
 
+// -- INTERCEPTORS
+api.interceptors.request.use((cfg) => {
+  // Não mexa em cfg.url (para não quebrar a baseURL)
+  // Apenas adicione um cache-buster via params
+  if ((cfg.method || "get").toLowerCase() === "get") {
+    cfg.headers = { ...(cfg.headers || {}), "Cache-Control": "no-cache", Pragma: "no-cache" };
+    cfg.params = { ...(cfg.params || {}), _t: Date.now() };
+  }
+  return cfg;
+});
+
 api.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -34,15 +48,5 @@ api.interceptors.response.use(
   }
 );
 
-api.interceptors.request.use((cfg) => {
-  if ((cfg.method || "get").toLowerCase() === "get") {
-    cfg.headers = cfg.headers || {};
-    cfg.headers["Cache-Control"] = "no-cache";
-    cfg.headers["Pragma"] = "no-cache";
-    cfg.headers["If-Modified-Since"] = "0";
-    const u = new URL(cfg.url, window.location.origin);
-    u.searchParams.set("_t", Date.now().toString());
-    cfg.url = u.pathname + u.search;
-  }
-  return cfg;
-});
+// DEBUG opcional:
+console.log("API baseURL =>", baseURL);
