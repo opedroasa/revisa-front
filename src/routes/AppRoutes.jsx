@@ -5,8 +5,6 @@ import MarcasList from "../pages/Marcas/MarcasList";
 import ModelosList from "../pages/Modelos/ModelosList";
 import ChangePasswordDialog from "../components/ChangePasswordDialog";
 
-import SettingsProvider from "../context/SettingsContext";
-
 import About from "../pages/Store/About";
 import SiteSettingsPage from "../pages/Admin/Config/SiteSettingsPage.jsx";
 
