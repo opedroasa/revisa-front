@@ -71,27 +71,37 @@ export default function ProductsList() {
   }
 
   const renderCard = (p) => (
-    <div key={p.id} className="rounded-xl border border-gray-200 overflow-hidden bg-white">
-      <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
-        {p.fotoDestaqueUrl ? (
-          <img src={p.fotoDestaqueUrl} alt={p.nome} className="h-full w-full object-cover" />
-        ) : (
-          <span className="text-gray-500">Imagem indisponível</span>
-        )}
-      </div>
-      <div className="p-3">
-        <h3 className="font-medium line-clamp-1">{p.nome}</h3>
-        <p className="text-sm text-gray-600 line-clamp-2">{p.descricao}</p>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="font-semibold">
-            {Number(p.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-          </span>
-          {/* rota de detalhes correta */}
-          <Link to={`/peca/${p.id}`} className="text-sm text-[#0D3A53] hover:underline">Detalhes</Link>
-        </div>
+  <div
+    key={p.id}
+    className="relative rounded-xl border border-gray-200 overflow-hidden bg-white hover:shadow-md transition cursor-pointer"
+  >
+    {/* Link cobre o card inteiro */}
+    <Link
+      to={`/peca/${p.id}`}
+      aria-label={`Abrir ${p.nome}`}
+      className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D3A53]"
+    />
+
+    <div className="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+      {p.fotoDestaqueUrl ? (
+        <img src={p.fotoDestaqueUrl} alt={p.nome} className="h-full w-full object-cover" />
+      ) : (
+        <span className="text-gray-500">Imagem indisponível</span>
+      )}
+    </div>
+
+    <div className="p-3">
+      <h3 className="font-medium line-clamp-1">{p.nome}</h3>
+      <p className="text-sm text-gray-600 line-clamp-2">{p.descricao}</p>
+      <div className="mt-2 flex items-center justify-between">
+        <span className="font-semibold">
+          {Number(p.preco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </span>
+        {/* botão "Detalhes" removido */}
       </div>
     </div>
-  );
+  </div>
+);
 
   function Pager() {
     if (data.totalPages <= 1) return null;

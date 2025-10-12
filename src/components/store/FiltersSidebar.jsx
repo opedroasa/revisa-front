@@ -97,7 +97,7 @@ export default function FiltersSidebar({ value, onChange, onApply }) {
             value={order || "nome_asc"}
             onChange={(e) => handle({ order: e.target.value })}
           >
-            {/* Removido 'relevância' */}
+            {}
             <option value="preco_asc">Preço: menor → maior</option>
             <option value="preco_desc">Preço: maior → menor</option>
             <option value="nome_asc">Nome A→Z</option>
