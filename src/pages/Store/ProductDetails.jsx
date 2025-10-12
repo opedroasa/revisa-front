@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-// import { useParams } from "react-router-dom";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ProdutosService } from "../../services/produtosService";
 import { useSettings } from "../../context/SettingsContext";
+import BackButton from "../../components/common/BackButton";
+
 
 
 function formatBRL(n) {
@@ -11,11 +12,7 @@ function formatBRL(n) {
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
-const goBack = () => {
-  if (window.history.length > 1) navigate(-1);
-  else navigate("/"); // ajuste se a sua listagem não for na "/"
-};
+
   const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,15 +73,16 @@ const waLink = phone
   if (!produto) return <p className="p-6 text-red-700">Produto não encontrado.</p>;
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <button
-        type="button"
-        onClick={goBack}
-        className="mb-4 inline-flex items-center gap-2 text-[#0D3A53] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D3A53]"
-      >
-        <span aria-hidden>←</span>
-        Voltar
-      </button>
+      <div className="mx-auto max-w-6xl">
+        {/* barra fixa só no mobile (opcional, melhora UX) */}
+        <div className="sticky top-0 z-10 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 md:hidden">
+          <div className="px-4 py-3">
+            <BackButton defaultPath="/" />
+          </div>
+        </div>
+
+        {/* botão “solto” que aparece de md pra cima */}
+        <BackButton className="mb-4 hidden md:inline-flex" defaultPath="/" />
       <div className="grid gap-6 md:grid-cols-2">
         {/* Galeria */}
         <div>

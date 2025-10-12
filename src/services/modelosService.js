@@ -6,6 +6,7 @@ export const ModelosService = {
   listar: () => api.get(base),
   listarAtivos: () => api.get(`${base}/ativos`),                // vitrine
   listarPorMarca: (marcaId) => api.get(`${base}/marca/${marcaId}`),
+  listarAtivosPorMarca: (marcaId) => api.get(`${base}/api/modelos/marca/${marcaId}/ativos`),
 
   buscar: (id) => api.get(`${base}/${id}`),
   criar: (payload) => api.post(base, payload),                  // { nome, marcaId }
