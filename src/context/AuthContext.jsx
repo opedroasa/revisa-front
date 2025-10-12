@@ -3,10 +3,8 @@ import { setBasicAuth, clearAuth } from "../services/api";
 
 const AuthCtx = createContext(null);
 
-// Hook para consumir o contexto
 export const useAuth = () => useContext(AuthCtx);
 
-// Provider
 export function AuthProvider({ children }) {
   const [isAuth, setIsAuth] = useState(false);
 
@@ -32,5 +30,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Também exporta como default para compatibilidade
 export default AuthProvider;

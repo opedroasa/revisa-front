@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ProdutosService } from "../../services/produtosService";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -10,6 +11,11 @@ function formatBRL(n) {
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+const goBack = () => {
+  if (window.history.length > 1) navigate(-1);
+  else navigate("/"); // ajuste se a sua listagem não for na "/"
+};
   const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -71,6 +77,14 @@ const waLink = phone
 
   return (
     <div className="mx-auto max-w-6xl">
+      <button
+        type="button"
+        onClick={goBack}
+        className="mb-4 inline-flex items-center gap-2 text-[#0D3A53] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D3A53]"
+      >
+        <span aria-hidden>←</span>
+        Voltar
+      </button>
       <div className="grid gap-6 md:grid-cols-2">
         {/* Galeria */}
         <div>

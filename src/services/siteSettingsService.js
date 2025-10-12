@@ -8,6 +8,6 @@ export const SiteSettingsService = {
   getAdmin: () => api.get("/api/site/settings"),
 
   // atualizar configurações (precisa auth)
-  update: ({ whatsappPhone, aboutHtml }) =>
-    api.put("/api/site/settings", { whatsappPhone, aboutHtml }),
+  update: ({ whatsappPhone }) =>
+    api.put("/api/site/settings", { whatsappPhone }),
 };
