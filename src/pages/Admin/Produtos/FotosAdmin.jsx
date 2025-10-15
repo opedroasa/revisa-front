@@ -1,11 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
 import { ProdutosService } from "../../../services/produtosService";
-// Se o arquivo for plural, troque para '../../../services/produtosFotosService'
 import { ProdutoFotosService as FotosService } from "../../../services/produtoFotosService";
-
 import Button from "../../../components/Button";
 
 export default function FotosAdmin() {
@@ -15,10 +13,13 @@ export default function FotosAdmin() {
   const [produto, setProduto] = useState(null);
   const [fotos, setFotos] = useState([]);
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  // estados novos
+  const [isUploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef(null);
 
   const carregar = useCallback(async () => {
-    setLoading(true);
     try {
       const p = await ProdutosService.buscar(id);
       setProduto(p.data);
@@ -28,8 +29,6 @@ export default function FotosAdmin() {
     } catch (e) {
       console.error(e);
       toast.error("Falha ao carregar fotos do produto");
-    } finally {
-      setLoading(false);
     }
   }, [id]);
 
@@ -37,16 +36,30 @@ export default function FotosAdmin() {
     carregar();
   }, [carregar]);
 
+  function onSelect(e) {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+    setProgress(0);
+  }
+
   async function enviar() {
-    if (!file) return;
+    if (!file || isUploading) return; // trava duplo clique
     try {
-      await FotosService.upload(id, file);
+      setUploading(true);
+      setProgress(0);
+      await FotosService.upload(id, file, setProgress);
       toast.success("Foto enviada");
+
+      // limpa input para permitir re-escolher o mesmo arquivo
       setFile(null);
-      await carregar();
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      await carregar(); // atualiza galeria
     } catch (e) {
       console.error(e);
       toast.error("Falha no upload");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -73,32 +86,49 @@ export default function FotosAdmin() {
     }
   }
 
-  if (loading) return <p className="p-6">Carregando...</p>;
-
   return (
     <div className="mx-auto max-w-5xl p-4">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-semibold">
           Fotos — {produto?.nome || `#${id}`}
         </h2>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-2 flex-wrap">
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="block w-64 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#0D3A53] file:px-3 file:py-2 file:text-white"
+            onChange={onSelect}
+            disabled={isUploading}
+            className="block w-64 text-sm disabled:opacity-60
+                       file:mr-3 file:rounded-md file:border-0
+                       file:bg-[#0D3A53] file:px-3 file:py-2 file:text-white
+                       file:disabled:opacity-70"
           />
-          <Button onClick={enviar} disabled={!file}>
-            Upload
+
+          <Button onClick={enviar} disabled={!file || isUploading}>
+            {isUploading ? `Enviando ${progress || 0}%` : "Upload"}
           </Button>
+
           <Button
             className="inline-flex items-center gap-1 rounded-md border !border-[#0D3A53]/30 !bg-white px-2 py-1 text-xs font-medium !text-[#0D3A53] hover:!bg-[#0D3A53]/5"
             onClick={() => nav("/admin/produtos")}
+            disabled={isUploading}
           >
             Voltar
           </Button>
         </div>
       </div>
+
+      {/* Barra de progresso */}
+      {isUploading && (
+        <div className="mb-3 w-full max-w-xs h-2 bg-gray-200 rounded">
+          <div
+            className="h-2 bg-[#0D3A53] rounded transition-[width] duration-150"
+            style={{ width: `${progress || 1}%` }}
+          />
+        </div>
+      )}
 
       {fotos.length === 0 && (
         <p className="text-gray-500">Nenhuma foto enviada.</p>
@@ -115,27 +145,25 @@ export default function FotosAdmin() {
           >
             <div className="aspect-[4/3] rounded-lg bg-gray-50 overflow-hidden flex items-center justify-center">
               {f.url ? (
-                <img
-                  src={f.url}
-                  alt=""
-                  className="h-full w-full object-contain"
-                />
+                <img src={f.url} alt="" className="h-full w-full object-contain" />
               ) : (
-                <span className="text-sm text-gray-500">
-                  Imagem indisponível
-                </span>
+                <span className="text-sm text-gray-500">Imagem indisponível</span>
               )}
             </div>
+
             <div className="mt-2 flex items-center justify-between gap-2">
               <Button
                 className="inline-flex items-center gap-1 rounded-md border !border-[#0D3A53]/30 !bg-white px-2 py-1 text-xs font-medium !text-[#0D3A53] hover:!bg-[#0D3A53]/5"
                 onClick={() => definirDestaque(f.id)}
+                disabled={isUploading}
               >
                 {f.destaque ? "Destaque ✓" : "Definir destaque"}
               </Button>
+
               <Button
                 className="bg-red-600 hover:bg-red-700"
                 onClick={() => excluir(f.id)}
+                disabled={isUploading}
               >
                 Excluir
               </Button>

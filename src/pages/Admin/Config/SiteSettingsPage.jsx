@@ -85,7 +85,7 @@ export default function SiteSettingsPage() {
       <div className="mb-4">
         <h2 className="text-2xl font-semibold">Configurações do site</h2>
         <p className="text-sm text-gray-600">
-          Defina o WhatsApp e o conteúdo da página “Sobre nós”.
+          Defina o WhatsApp.
         </p>
       </div>
 
@@ -102,18 +102,7 @@ export default function SiteSettingsPage() {
             Ex.: 55 + DDD + número (somente dígitos). Será usado no botão “Falar no WhatsApp”.
           </p>
         </div>
-
-        <div>
-          <label className="text-sm font-medium">Sobre nós (HTML opcional)</label>
-          <textarea
-            rows={10}
-            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-            placeholder="Conte a história da empresa. Pode usar HTML simples."
-            value={form.aboutHtml}
-            onChange={(e) => setField("aboutHtml", e.target.value)}
-          />
-        </div>
-
+        
         <div className="flex justify-end gap-2">
           <button
             onClick={salvar}

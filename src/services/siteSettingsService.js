@@ -7,7 +7,7 @@ export const SiteSettingsService = {
   // admin (precisa estar logado)
   getAdmin: () => api.get("/api/site/settings"),
 
-  // atualizar configurações (precisa auth)
-  update: ({ whatsappPhone, aboutHtml }) =>
-    api.put("/api/site/settings", { whatsappPhone, aboutHtml }),
+  // atualizar configurações (precisa auth).
+  update: ({ whatsappPhone }) =>
+    api.put("/api/site/settings", { whatsappPhone }),
 };

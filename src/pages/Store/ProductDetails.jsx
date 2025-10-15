@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { ProdutosService } from "../../services/produtosService";
 import { useSettings } from "../../context/SettingsContext";
+import BackButton from "../../components/common/BackButton";
+
 
 
 function formatBRL(n) {
@@ -10,6 +12,7 @@ function formatBRL(n) {
 
 export default function ProductDetails() {
   const { id } = useParams();
+
   const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,7 +73,16 @@ const waLink = phone
   if (!produto) return <p className="p-6 text-red-700">Produto não encontrado.</p>;
 
   return (
-    <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl">
+        {/* barra fixa só no mobile (opcional, melhora UX) */}
+        <div className="sticky top-0 z-10 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 md:hidden">
+          <div className="px-4 py-3">
+            <BackButton defaultPath="/" />
+          </div>
+        </div>
+
+        {/* botão “solto” que aparece de md pra cima */}
+        <BackButton className="mb-4 hidden md:inline-flex" defaultPath="/" />
       <div className="grid gap-6 md:grid-cols-2">
         {/* Galeria */}
         <div>

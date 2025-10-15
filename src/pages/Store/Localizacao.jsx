@@ -1,6 +1,6 @@
 import BackButton from "../../components/common/BackButton";
 
-export default function About() {
+export default function Localizacao() {
   return (
     <>
       {/* Mobile: barra fixa no topo */}
@@ -14,8 +14,8 @@ export default function About() {
         {/* Desktop: botão “solto” acima do conteúdo */}
         <BackButton className="mb-4 hidden md:inline-flex" defaultPath="/" />
 
-        <h1 className="text-2xl font-semibold mb-2">Sobre</h1>
-        <p>Sobre a empresa (conteúdo a definir)</p>
+        <h1 className="text-2xl font-semibold mb-2">Localização</h1>
+        <p>Endereço e mapa da Revisa Caminhões. (conteúdo a definir)</p>
       </section>
     </>
   );

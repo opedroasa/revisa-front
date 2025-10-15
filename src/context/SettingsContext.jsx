@@ -9,7 +9,6 @@ export function SettingsProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   async function refresh() {
-    // 👇 liga o loading sempre que recarregar
     setLoading(true);
     try {
       const { data } = await api.get("/api/site/settings/public", {

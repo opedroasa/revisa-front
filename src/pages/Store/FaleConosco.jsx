@@ -1,6 +1,6 @@
 import BackButton from "../../components/common/BackButton";
 
-export default function About() {
+export default function FaleConosco() {
   return (
     <>
       {/* Mobile: barra fixa no topo */}
@@ -12,10 +12,10 @@ export default function About() {
 
       <section className="max-w-6xl mx-auto p-4">
         {/* Desktop: botão “solto” acima do conteúdo */}
-        <BackButton className="mb-4 hidden md:inline-flex" defaultPath="/" />
+        <BackButton className="mb-4 hidden md:inline-flex" defaultPath="/produtos" />
 
-        <h1 className="text-2xl font-semibold mb-2">Sobre</h1>
-        <p>Sobre a empresa (conteúdo a definir)</p>
+        <h1 className="text-2xl font-semibold mb-2">Fale conosco</h1>
+        <p>Formas de contato/WhatsApp. (conteúdo a definir)</p>
       </section>
     </>
   );
