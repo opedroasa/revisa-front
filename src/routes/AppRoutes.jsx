@@ -6,8 +6,10 @@ import ModelosList from "../pages/Modelos/ModelosList";
 import ChangePasswordDialog from "../components/ChangePasswordDialog";
 import Footer from "../components/Footer";
 import FloatingWhatsApp from "../components/common/FloatingWhatsApp";
-
+import UsuariosAdminList from "../pages/Admin/Usuarios/UsuariosAdminList";
 import AdminMenu from "../components/admin/AdminMenu";
+import ResetPasswordPage from "../pages/Auth/ResetPasswordPage";
+
 
 
 
@@ -134,6 +136,10 @@ export default function AppRoutes() {
           <Route path="/compramos-seu-batido" element={<CompramosSeuBatido />} />
           <Route path="/fale-conosco" element={<FaleConosco />} />
           <Route path="/peca/:id" element={<ProductDetails />} />
+          <Route path="/recuperar-senha" element={<ResetPasswordPage />} />
+          <Route path="/resetar-senha" element={<ResetPasswordPage />} />
+          <Route path="/ResetPasswordPage" element={<ResetPasswordPage />} />
+
 
           {/* Admin */}
           <Route path="/admin/marcas" element={<Guard><MarcasList /></Guard>} />
@@ -142,6 +148,7 @@ export default function AppRoutes() {
           <Route path="/admin/produtos/novo" element={<Guard><ProdutoAdminForm mode="create" /></Guard>} />
           <Route path="/admin/produtos/:id/editar" element={<Guard><ProdutoAdminForm mode="edit" /></Guard>} />
           <Route path="/admin/produtos/:id/fotos" element={<Guard><FotosAdmin /></Guard>} />
+          <Route path="/admin/usuarios" element={<Guard><UsuariosAdminList /></Guard>} />
           <Route path="/admin/config" element={<Guard><SiteSettingsPage /></Guard>} />
 
         </Routes>
@@ -189,6 +196,7 @@ function MobileMenu({ isAuth, onOpenLogin, onOpenChangePwd, onLogout }) {
                 <Link onClick={() => setOpen(false)} to="/admin/produtos" className="block px-2 py-2 rounded hover:bg-gray-50">Produtos</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/modelos" className="block px-2 py-2 rounded hover:bg-gray-50">Modelos</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/marcas" className="block px-2 py-2 rounded hover:bg-gray-50">Marcas</Link>
+                <Link onClick={() => setOpen(false)} to="/admin/usuarios" className="block px-2 py-2 rounded hover:bg-gray-50">Usuários</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/config" className="block px-2 py-2 rounded hover:bg-gray-50">Configurações</Link>
                 <button onClick={() => { setOpen(false); onOpenChangePwd(); }} className="w-full text-left px-2 py-2 rounded hover:bg-gray-50">
                   Alterar senha

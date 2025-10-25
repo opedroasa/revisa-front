@@ -14,9 +14,10 @@ export default function AdminMenu({ className = "" }) {
   // Itens do menu (ajuste as rotas se for diferente no seu app)
   const items = useMemo(
     () => [
-      { to: "/admin/produtos",        label: "Produtos" },
-      { to: "/admin/modelos",         label: "Modelos" },
-      { to: "/admin/marcas",          label: "Marcas" },
+      { to: "/admin/produtos",  label: "Produtos" },
+      { to: "/admin/modelos",   label: "Modelos"  },
+      { to: "/admin/marcas",    label: "Marcas"   },
+      { to: "/admin/usuarios",  label: "Usuários" }, // << NOVO
       { to: "/admin/config/",   label: "Configurações" },
     ],
     []
