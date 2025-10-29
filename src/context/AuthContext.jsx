@@ -15,15 +15,23 @@ export function AuthProvider({ children }) {
     setIsAuth(!!stored);
   }, []);
 
-  async function login(email, password) {
+  /*async function login(email, password) {
     const ok = await UsuarioService.validarLogin(email, password);
     if (!ok) throw new Error("E-mail ou senha inválidos.");
 
-    // agora sim persistimos para as próximas chamadas
     setBasicAuth(email, password);
     localStorage.setItem("auth_basic", "1");
     setIsAuth(true);
+  }*/
+
+    async function login(email, password) {
+    const ok = await UsuarioService.validarLogin(email, password);
+    if (!ok) throw new Error("E-mail ou senha inválidos.");
+
+    setBasicAuth(email, password); 
+    setIsAuth(true);
   }
+
 
   function logout() {
     clearAuth();
