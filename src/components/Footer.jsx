@@ -47,20 +47,20 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2">Endereço</h4>
-            <p className="text-sm">Rua Exemplo, 123 – Bairro</p>
-            <p className="text-sm">Cidade/UF – CEP 00000-000</p>
+            <h4 className="font-semibold mb-2">Endereços</h4>
+            <p className="text-sm mb-2">Matriz: R. Canoas, 220 – Morumbi, Uberlândia/MG, 38.407-291</p>
+            <p className="text-sm">Ponto de revenda: R. Prof. Mario Gódoi, 1253 - Segismundo Pereira, Uberlândia/MG, 38.408-332</p>
           </div>
 
           <div>
             <h4 className="font-semibold mb-2">Telefone</h4>
-            <p className="text-sm">(00) 00000-0000</p>
+            <p className="text-sm">(34) 99808-6027</p>
           </div>
 
           <div>
             <h4 className="font-semibold mb-2">E-mail</h4>
-            <a className="text-sm underline" href="mailto:contato@revisa.com.br">
-              contato@revisa.com.br
+            <a className="text-sm underline" href="mailto:revisacaminhoes@yahoo.com.br">
+              revisacaminhoes@yahoo.com.br
             </a>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function Footer() {
 
       <div className="bg-gray-800 text-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3 text-xs text-center">
-          Copyright {new Date().getFullYear()} © Revisa Caminhões – CNPJ: 00.000.000/0001-00
+          Copyright {new Date().getFullYear()} © Revisa Caminhões – CNPJ: 05.235.257/0001-46
         </div>
       </div>
     </footer>

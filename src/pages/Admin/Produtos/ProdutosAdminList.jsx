@@ -6,7 +6,10 @@ import { toast } from "react-hot-toast";
 const PAGE_SIZE = 20;
 
 export default function ProdutosAdminList() {
-  const [q, setQ] = useState("");
+  // campo digitado x filtro aplicado (para não buscar a cada tecla)
+  const [qInput, setQInput] = useState("");
+  const [q, setQ] = useState(""); // <- só muda quando clica em "Aplicar filtros"
+
   const [page, setPage] = useState(0);
   const [dados, setDados] = useState({ content: [], totalPages: 0, number: 0 });
   const [loading, setLoading] = useState(false);
@@ -19,7 +22,7 @@ export default function ProdutosAdminList() {
         size: PAGE_SIZE,
         sort: "id,asc",        // padrão admin
         somenteAtivos: false,  // admin enxerga todos
-        q: q?.trim() ? q.trim() : null,
+        q: q?.trim() ? q.trim() : null, // usa SOMENTE o filtro aplicado
       });
       setDados({
         content: data.content || [],
@@ -34,7 +37,19 @@ export default function ProdutosAdminList() {
     }
   }, [page, q]);
 
+  // carrega ao abrir + quando página OU filtro aplicado mudam
   useEffect(() => { carregar(); }, [carregar]);
+
+  function aplicarFiltros() {
+    setPage(0);
+    setQ(qInput); // agora sim aplica o que está digitado
+  }
+
+  function limparFiltros() {
+    setQInput("");
+    setQ("");
+    setPage(0);
+  }
 
   async function toggleAtivo(p) {
     try {
@@ -150,16 +165,33 @@ export default function ProdutosAdminList() {
     <div className="mx-auto max-w-7xl">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-semibold">Produtos</h2>
-        <div className="flex gap-2">
+
+        <div className="flex flex-wrap items-center gap-2">
           <input
-            value={q}
-            onChange={(e) => { setPage(0); setQ(e.target.value); }}
+            value={qInput}
+            onChange={(e) => setQInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") aplicarFiltros(); }}
             placeholder="Buscar por nome/descrição..."
             className="w-72 rounded-md border px-3 py-2 text-sm"
           />
+
+          <button
+            onClick={aplicarFiltros}
+            className="rounded-md bg-[#0D3A53] px-3 py-2 text-sm text-white hover:opacity-90"
+          >
+            Aplicar filtros
+          </button>
+
+          <button
+            onClick={limparFiltros}
+            className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
+          >
+            Limpar
+          </button>
+
           <Link
             to="/admin/produtos/novo"
-            className="rounded-md bg-[#0D3A53] px-3 py-2 text-sm text-white hover:opacity-90"
+            className="rounded-md bg-[#0D3A53] px-3 py-2 text-sm text-white hover:opacity-90 ml-2"
           >
             Novo produto
           </Link>

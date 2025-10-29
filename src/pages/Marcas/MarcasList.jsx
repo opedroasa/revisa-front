@@ -36,8 +36,12 @@ export default function MarcasList() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
+  // >>> estados "digitados" x "aplicados"
+  const [qInput, setQInput] = useState("");
   const [q, setQ] = useState("");
-  const [filtro, setFiltro] = useState("todas"); // todas | ativas | inativas
+
+  const [filtroInput, setFiltroInput] = useState("todas"); // digitado
+  const [filtro, setFiltro] = useState("todas");           // aplicado
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -72,6 +76,18 @@ export default function MarcasList() {
     }
     return list.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
   }, [marcas, q, filtro]);
+
+  function aplicarFiltros() {
+    setQ(qInput.trim());
+    setFiltro(filtroInput);
+  }
+
+  function limparFiltros() {
+    setQInput("");
+    setFiltroInput("todas");
+    setQ("");
+    setFiltro("todas");
+  }
 
   function abrirNovo() {
     setEditing(null);
@@ -143,33 +159,52 @@ export default function MarcasList() {
     <div className="p-6 mx-auto max-w-5xl">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-semibold">Marcas</h2>
+
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {/* Busca */}
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <input
               placeholder="Buscar por ID ou nome..."
               className="w-full sm:w-64 rounded-md border border-gray-300 pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") aplicarFiltros(); }}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <select
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
-              value={filtro}
-              onChange={(e) => setFiltro(e.target.value)}
-            >
-              <option value="todas">Todas</option>
-              <option value="ativas">Ativas</option>
-              <option value="inativas">Inativas</option>
-            </select>
-            <button
-              onClick={abrirNovo}
-              className="inline-flex items-center gap-2 rounded-md !bg-[#0D3A53] px-3 py-2 text-sm font-medium !text-white hover:opacity-90"
-            >
-              <Plus size={16}/> Nova
-            </button>
-          </div>
+
+          {/* Status */}
+          <select
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
+            value={filtroInput}
+            onChange={(e) => setFiltroInput(e.target.value)}
+          >
+            <option value="todas">Todas</option>
+            <option value="ativas">Ativas</option>
+            <option value="inativas">Inativas</option>
+          </select>
+
+          {/* Ações de filtro */}
+          <button
+            onClick={aplicarFiltros}
+            className="rounded-md bg-[#0D3A53] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+          >
+            Aplicar filtros
+          </button>
+          <button
+            onClick={limparFiltros}
+            className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
+          >
+            Limpar
+          </button>
+
+          {/* Novo */}
+          <button
+            onClick={abrirNovo}
+            className="inline-flex items-center gap-2 rounded-md !bg-[#0D3A53] px-3 py-2 text-sm font-medium !text-white hover:opacity-90"
+          >
+            <Plus size={16}/> Nova
+          </button>
         </div>
       </div>
 

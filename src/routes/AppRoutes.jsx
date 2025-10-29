@@ -5,6 +5,12 @@ import MarcasList from "../pages/Marcas/MarcasList";
 import ModelosList from "../pages/Modelos/ModelosList";
 import ChangePasswordDialog from "../components/ChangePasswordDialog";
 import Footer from "../components/Footer";
+import FloatingWhatsApp from "../components/common/FloatingWhatsApp";
+import UsuariosAdminList from "../pages/Admin/Usuarios/UsuariosAdminList";
+import AdminMenu from "../components/admin/AdminMenu";
+import ResetPasswordPage from "../pages/Auth/ResetPasswordPage";
+
+
 
 
 import Localizacao from "../pages/Store/Localizacao";
@@ -37,11 +43,11 @@ export default function AppRoutes() {
       <header className="bg-white border-b">
         <div className="mx-auto max-w-7xl px-4">
           {/* Linha 1: Brand bar */}
-          <div className="relative flex items-center justify-between py-3">
+          <div className="relative flex items-center justify-between py-1">
             {/* Logo + texto mobile */}
             <div className="flex items-center gap-3">
               {/* Logo maior no desktop */}
-              <img src="/brand-logo.png" alt="Revisa Caminhões" className="h-14 md:h-28 lg:h-32" />
+              <img src="/brand-logo.png" alt="Revisa Caminhões" className="h-14 md:h-30 lg:h-44" />
               {/* No mobile, texto curto ao lado da logo */}
               <span className="md:hidden text-xs font-semibold text-brandNavy">
                 REVISA CAMINHÕES
@@ -49,9 +55,9 @@ export default function AppRoutes() {
             </div>
 
             {/* Headline no desktop (mais bold e maior) */}
-            <div className="hidden md:block text-2xl font-extrabold tracking-wide text-brandInk">
-              REVISA CAMINHÕES – PEÇAS E SERVIÇOS
-            </div>
+          <div className="hidden md:block md:text-4xl lg:text-4xl font-extrabold tracking-wide text-brandInk leading-tight">
+            REVISA CAMINHÕES – PEÇAS E SERVIÇOS
+          </div>
 
             {/* Ações (login/sair) no desktop */}
             <div className="hidden md:flex items-center gap-2">
@@ -95,7 +101,7 @@ export default function AppRoutes() {
               Home
             </Link>
             <Link to="/sobre" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
-              Sobre
+              Sobre nós
             </Link>
             <Link to="/localizacao" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
               Localização
@@ -110,18 +116,9 @@ export default function AppRoutes() {
             {isAuth && (
               <>
                 <span className="flex-1" />
-                <Link to="/admin/produtos" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
-                  Produtos
-                </Link>
-                <Link to="/admin/modelos" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
-                  Modelos
-                </Link>
-                <Link to="/admin/marcas" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
-                  Marcas
-                </Link>
-                <Link to="/admin/config" className="px-4 py-2 rounded-md text-white hover:bg-white hover:text-brandNavy transition">
-                  Configurações
-                </Link>
+                <div className="relative ml-auto mr-3">
+                <AdminMenu />
+              </div>
               </>
             )}
           </nav>
@@ -130,7 +127,7 @@ export default function AppRoutes() {
 
 
       {/* CONTEÚDO */}
-      <div className="p-6">
+      <div className="p-0">
         <Routes>
           {/* Público */}
           <Route path="/" element={<ProductsList />} />
@@ -139,6 +136,10 @@ export default function AppRoutes() {
           <Route path="/compramos-seu-batido" element={<CompramosSeuBatido />} />
           <Route path="/fale-conosco" element={<FaleConosco />} />
           <Route path="/peca/:id" element={<ProductDetails />} />
+          <Route path="/recuperar-senha" element={<ResetPasswordPage />} />
+          <Route path="/resetar-senha" element={<ResetPasswordPage />} />
+          <Route path="/ResetPasswordPage" element={<ResetPasswordPage />} />
+
 
           {/* Admin */}
           <Route path="/admin/marcas" element={<Guard><MarcasList /></Guard>} />
@@ -147,10 +148,13 @@ export default function AppRoutes() {
           <Route path="/admin/produtos/novo" element={<Guard><ProdutoAdminForm mode="create" /></Guard>} />
           <Route path="/admin/produtos/:id/editar" element={<Guard><ProdutoAdminForm mode="edit" /></Guard>} />
           <Route path="/admin/produtos/:id/fotos" element={<Guard><FotosAdmin /></Guard>} />
+          <Route path="/admin/usuarios" element={<Guard><UsuariosAdminList /></Guard>} />
           <Route path="/admin/config" element={<Guard><SiteSettingsPage /></Guard>} />
 
         </Routes>
         <Footer />
+
+        <FloatingWhatsApp />
 
       </div>
 
@@ -181,7 +185,7 @@ function MobileMenu({ isAuth, onOpenLogin, onOpenChangePwd, onLogout }) {
         <div id="mobile-menu" className="absolute left-0 right-0 top-full z-40 border-b bg-white shadow-sm">
           <div className="mx-auto max-w-7xl p-3 space-y-2 text-sm text-brandNavy">
             <Link onClick={() => setOpen(false)} to="/" className="block px-2 py-2 rounded hover:bg-gray-50">Home</Link>
-            <Link onClick={() => setOpen(false)} to="/sobre" className="block px-2 py-2 rounded hover:bg-gray-50">Sobre</Link>
+            <Link onClick={() => setOpen(false)} to="/sobre" className="block px-2 py-2 rounded hover:bg-gray-50">Sobre nós</Link>
             <Link onClick={() => setOpen(false)} to="/localizacao" className="block px-2 py-2 rounded hover:bg-gray-50">Localização</Link>
             <Link onClick={() => setOpen(false)} to="/compramos-seu-batido" className="block px-2 py-2 rounded hover:bg-gray-50">Compramos seu batido</Link>
             <Link onClick={() => setOpen(false)} to="/fale-conosco" className="block px-2 py-2 rounded hover:bg-gray-50">Fale conosco</Link>
@@ -192,6 +196,7 @@ function MobileMenu({ isAuth, onOpenLogin, onOpenChangePwd, onLogout }) {
                 <Link onClick={() => setOpen(false)} to="/admin/produtos" className="block px-2 py-2 rounded hover:bg-gray-50">Produtos</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/modelos" className="block px-2 py-2 rounded hover:bg-gray-50">Modelos</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/marcas" className="block px-2 py-2 rounded hover:bg-gray-50">Marcas</Link>
+                <Link onClick={() => setOpen(false)} to="/admin/usuarios" className="block px-2 py-2 rounded hover:bg-gray-50">Usuários</Link>
                 <Link onClick={() => setOpen(false)} to="/admin/config" className="block px-2 py-2 rounded hover:bg-gray-50">Configurações</Link>
                 <button onClick={() => { setOpen(false); onOpenChangePwd(); }} className="w-full text-left px-2 py-2 rounded hover:bg-gray-50">
                   Alterar senha

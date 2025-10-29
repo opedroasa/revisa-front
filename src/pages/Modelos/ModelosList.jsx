@@ -24,9 +24,16 @@ export default function ModelosList() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
+  // ===== filtros "digitados" x "aplicados" =====
+  const [qInput, setQInput] = useState("");
   const [q, setQ] = useState("");
-  const [filtroStatus, setFiltroStatus] = useState("todas"); // todas | ativas | inativas
-  const [filtroMarca, setFiltroMarca] = useState("todas");   // "todas" | id
+
+  const [filtroStatusInput, setFiltroStatusInput] = useState("todas"); // todas | ativas | inativas
+  const [filtroStatus, setFiltroStatus] = useState("todas");           // aplicado
+
+  const [filtroMarcaInput, setFiltroMarcaInput] = useState("todas");   // "todas" | id
+  const [filtroMarca, setFiltroMarca] = useState("todas");             // aplicado
+  // ============================================
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -55,9 +62,11 @@ export default function ModelosList() {
 
   const filtrados = useMemo(() => {
     let list = [...modelos];
+
     if (filtroStatus === "ativas") list = list.filter((m) => m.ativo);
     if (filtroStatus === "inativas") list = list.filter((m) => !m.ativo);
     if (filtroMarca !== "todas") list = list.filter((m) => m.marcaId === Number(filtroMarca));
+
     if (q.trim()) {
       const t = q.toLowerCase();
       list = list.filter(
@@ -67,8 +76,25 @@ export default function ModelosList() {
           (m.marcaNome || "").toLowerCase().includes(t)
       );
     }
-      return list.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+
+    return list.sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
   }, [modelos, q, filtroStatus, filtroMarca]);
+
+  function aplicarFiltros() {
+    setQ(qInput.trim());
+    setFiltroStatus(filtroStatusInput);
+    setFiltroMarca(filtroMarcaInput);
+  }
+
+  function limparFiltros() {
+    setQInput("");
+    setFiltroStatusInput("todas");
+    setFiltroMarcaInput("todas");
+
+    setQ("");
+    setFiltroStatus("todas");
+    setFiltroMarca("todas");
+  }
 
   function abrirNovo() { setEditing(null); setFormError(""); setModalOpen(true); }
   function abrirEditar(m) { setEditing(m); setFormError(""); setModalOpen(true); }
@@ -126,43 +152,58 @@ export default function ModelosList() {
 
   return (
     <div className="p-6 mx-auto max-w-6xl">
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto] lg:items-center">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-center">
         <h2 className="text-2xl font-semibold">Modelos</h2>
 
+        {/* Busca */}
         <div className="relative">
           <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             placeholder="Buscar por ID, nome ou marca..."
             className="w-full rounded-md border border-gray-300 pl-8 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={qInput}
+            onChange={(e) => setQInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") aplicarFiltros(); }}
           />
         </div>
 
+        {/* Marca */}
+        <select
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
+          value={filtroMarcaInput}
+          onChange={(e) => setFiltroMarcaInput(e.target.value)}
+        >
+          <option value="todas">Todas as marcas</option>
+          {marcasAtivas.map((m) => (
+            <option key={m.id} value={m.id}>{m.nome}</option>
+          ))}
+        </select>
+
+        {/* Status */}
+        <select
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
+          value={filtroStatusInput}
+          onChange={(e) => setFiltroStatusInput(e.target.value)}
+        >
+          <option value="todas">Todos</option>
+          <option value="ativas">Ativos</option>
+          <option value="inativas">Inativos</option>
+        </select>
+
+        {/* Ações */}
         <div className="flex gap-2">
-          <select
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
-            value={filtroMarca}
-            onChange={(e) => setFiltroMarca(e.target.value)}
+          <button
+            onClick={aplicarFiltros}
+            className="inline-flex items-center gap-2 rounded-md bg-[#0D3A53] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
           >
-            <option value="todas">Todas as marcas</option>
-            {marcasAtivas.map((m) => (
-              <option key={m.id} value={m.id}>{m.nome}</option>
-            ))}
-          </select>
-
-          <select
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brandNavy"
-            value={filtroStatus}
-            onChange={(e) => setFiltroStatus(e.target.value)}
+            Aplicar filtros
+          </button>
+          <button
+            onClick={limparFiltros}
+            className="rounded-md border px-3 py-2 text-sm hover:bg-gray-50"
           >
-            <option value="todas">Todos</option>
-            <option value="ativas">Ativos</option>
-            <option value="inativas">Inativos</option>
-          </select>
-        </div>
-
-        <div className="flex justify-start lg:justify-end">
+            Limpar
+          </button>
           <button
             onClick={abrirNovo}
             className="inline-flex items-center gap-2 rounded-md bg-[#0D3A53] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
