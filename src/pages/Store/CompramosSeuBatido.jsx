@@ -2,6 +2,7 @@ import { useState } from "react";
 import BackButton from "../../components/common/BackButton";
 import { EmailService } from "../../services/emailService";
 
+// Constante FOTO_CAMPOS (versão original, sem o typo)
 const FOTO_CAMPOS = [
   { key: "cabineFrente", label: "Cabine de frente" },
   { key: "lateralMotorista", label: "Lateral motorista" },
@@ -10,8 +11,30 @@ const FOTO_CAMPOS = [
   { key: "painel", label: "Foto do painel" },
   { key: "bancosMotorista", label: "Foto dos bancos pela porta do motorista" },
   { key: "motor", label: "Capô aberto - Mostrando o motor" },
-  { key: "crlv", label: "Foto do CRLV" },
+  { key: "crlv", label: "Foto do CRLV" }, // <<< CORRIGIDO
 ];
+
+// +++ LÓGICA DE MÁSCARA +++
+const maskCPF = (value) => {
+  if (!value) return "";
+  return value
+    .replace(/\D/g, "") // Remove tudo que não é dígito
+    .replace(/(\d{3})(\d)/, "$1.$2") // Coloca um ponto entre o terceiro e o quarto dígitos
+    .replace(/(\d{3})(\d)/, "$1.$2") // Coloca um ponto entre o terceiro e o quarto dígitos de novo (para o segundo bloco de números)
+    .replace(/(\d{3})(\d{1,2})/, "$1-$2") // Coloca um hífen entre o terceiro e o quarto dígitos
+    .slice(0, 14); // Limita ao tamanho 111.222.333-44
+};
+
+const maskTelefone = (value) => {
+  if (!value) return "";
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "($1) $2") // Coloca parênteses em volta dos dois primeiros dígitos
+    .replace(/(\d{5})(\d)/, "$1-$2") // Coloca hífen depois do 5º dígito (para celular)
+    .slice(0, 15); // Limita ao tamanho (11) 98888-7777
+};
+// +++ FIM DA LÓGICA DE MÁSCARA +++
+
 
 export default function CompramosSeuBatido() {
   const [form, setForm] = useState({
@@ -33,7 +56,17 @@ export default function CompramosSeuBatido() {
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
+
+    // +++ APLICAR MÁSCARA AO DIGITAR +++
+    let maskedValue = value;
+    if (name === "cpf") {
+      maskedValue = maskCPF(value);
+    } else if (name === "telefone") {
+      maskedValue = maskTelefone(value);
+    }
+    // +++ FIM DA MÁSCARA +++
+
+    setForm((s) => ({ ...s, [name]: maskedValue })); // <<< Usar maskedValue
   }
 
   function handleFile(key, file) {
@@ -61,11 +94,23 @@ export default function CompramosSeuBatido() {
       return;
     }
 
+    // +++ LIMPAR MÁSCARA ANTES DE ENVIAR +++
+    // O backend espera apenas os dígitos
+    const cleanCpf = form.cpf.replace(/\D/g, "");
+    const cleanTelefone = form.telefone.replace(/\D/g, "");
+
+    // Validar se o CPF limpo tem 11 dígitos (validação leve no front)
+    if (cleanCpf.length !== 11) {
+        setFeedback({ type: "error", msg: "CPF incompleto." });
+        return;
+    }
+    // +++ FIM DA LIMPEZA +++
+
     // monta o JSON "dados" (só inclui email se tiver)
     const dados = {
       nome: form.nome,
-      cpf: form.cpf,
-      telefone: form.telefone,
+      cpf: cleanCpf, // <<< Enviar CPF limpo
+      telefone: cleanTelefone, // <<< Enviar telefone limpo
       marca: form.marca,
       modelo: form.modelo,
       anoModelo: form.anoModelo,
@@ -104,11 +149,25 @@ export default function CompramosSeuBatido() {
       (e.target?.reset?.())?.(); // limpa inputs de arquivo
     } catch (err) {
       console.error(err);
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.mensagem ||
-        "Falha ao enviar. Tente novamente.";
-      setFeedback({ type: "error", msg });
+      
+      // <<< MELHORIA NA EXIBIÇÃO DE ERROS DE VALIDAÇÃO >>>
+      // O Spring Boot 400 (Bad Request) com @Valid retorna um objeto de erros
+      let errorMsg = "Falha ao enviar. Tente novamente.";
+      
+      if (err?.response?.data) {
+        const data = err.response.data;
+        // Erro de @Valid (geralmente tem "errors" ou "message" aninhado)
+        if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+            // Pega a primeira mensagem de erro de campo
+            errorMsg = data.errors[0].defaultMessage || data.errors[0].message;
+        } 
+        // Erro genérico do DTO (como o EmailResponseDTO)
+        else if (data.message || data.mensagem) {
+            errorMsg = data.message || data.mensagem;
+        }
+      }
+      
+      setFeedback({ type: "error", msg: errorMsg });
     } finally {
       setSending(false);
     }
@@ -153,17 +212,19 @@ export default function CompramosSeuBatido() {
               <Input
                 label="CPF"
                 name="cpf"
-                value={form.cpf}
+                value={form.cpf} // <<< O valor com máscara
                 onChange={handleChange}
                 placeholder="000.000.000-00"
+                maxLength={14} // <<< Adicionar maxLength
                 required
               />
               <Input
                 label="Telefone"
                 name="telefone"
-                value={form.telefone}
+                value={form.telefone} // <<< O valor com máscara
                 onChange={handleChange}
                 placeholder="(00) 00000-0000"
+                maxLength={15} // <<< Adicionar maxLength
                 required
               />
               <Input
